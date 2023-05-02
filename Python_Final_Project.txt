@@ -1,3 +1,5 @@
+# Installation of components
+
 !pip install yfinance==0.1.67
 !pip install nbformat==4.2.0
 #!pip install pandas==1.3.3
@@ -6,7 +8,9 @@
 !pip install plotly==5.3.1
 !mamba install bs4==4.10.0 -y
 !mamba install html5lib==1.1 -y
+print ("Installation Complete")
 
+# Importing Modules
 
 import yfinance as yf
 import pandas as pd
@@ -16,6 +20,7 @@ from bs4 import BeautifulSoup
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+# Defining make_graph Function
 
 def make_graph(stock_data, revenue_data, stock):
     fig = make_subplots(rows=2, cols=1, shared_xaxes=True, subplot_titles=("Historical Share Price", "Historical Revenue"), vertical_spacing = .3)
@@ -34,22 +39,25 @@ def make_graph(stock_data, revenue_data, stock):
     fig.show()
     
     
+# Creating Tesla ticker:
     
 TSLA = yf.Ticker("TSLA")
-    
 tesla_data = TSLA.history(period="max")
-    
+
+# Reading tesla_data_head
+
 tesla_data.reset_index(inplace=True)
 tesla_data.head()
 
 
+# Beautiful Soup and request
 
 url = "https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBMDeveloperSkillsNetwork-PY0220EN-SkillsNetwork/labs/project/revenue.htm"
-
 html_data  = requests.get(url).text
 soup1 = BeautifulSoup(html_data, 'html5lib')
-tesla_revenue = pd.DataFrame(columns=["Date", "Revenue"])
 
+# Create data frame
+tesla_revenue = pd.DataFrame(columns=["Date", "Revenue"])
 # First we isolate the body of the table which contains all the information
 # Then we loop through each row and find all the column values for each row
 for row in soup1.find_all("tbody")[1].find_all('tr'):
@@ -60,19 +68,20 @@ for row in soup1.find_all("tbody")[1].find_all('tr'):
     # Finally we append the data of each row to the table
     tesla_revenue = tesla_revenue.append({"Date":date, "Revenue":Revenue}, ignore_index=True)    
 
+# tesla_revenue Tail
 tesla_revenue["Revenue"] = tesla_revenue['Revenue'].str.replace(',|\$',"")
-
 tesla_revenue.dropna(inplace=True)
-
 tesla_revenue = tesla_revenue[tesla_revenue['Revenue'] != ""]
+tesla_revenue.tail()
+
+#Game Stop ticker
 
 GME = yf.Ticker("GME")
-
 gme_data.reset_index(inplace=True)
 gme_data.head()
 
 gme_data = GME.history(period="max")
-tesla_revenue.tail()
+
 
 url1 = "https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBMDeveloperSkillsNetwork-PY0220EN-SkillsNetwork/labs/project/stock.html"
 
@@ -95,7 +104,6 @@ for row in soup2.find_all("tbody")[1].find_all('tr'):
 gme_revenue["Revenue"] = gme_revenue['Revenue'].str.replace(',|\$',"")
 gme_revenue.dropna(inplace=True)
 gme_revenue = gme_revenue[gme_revenue['Revenue'] != ""]
-#gme_revenue.head()
 gme_revenue.tail()
 
 make_graph( tesla_data, tesla_revenue, 'Tesla')
